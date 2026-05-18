@@ -69,10 +69,17 @@ The backend requests structured JSON responses, validates them against the recom
 The repository includes a streaming preprocessing pipeline for the downloaded educational dataset:
 
 ```powershell
-python scripts/preprocess_dataset.py
+python preprocessing.py
+python analytics.py --student-id 8
 ```
 
-This writes standardized JSONL attempt records to `data/processed/student_attempts.jsonl`.
+This writes:
+
+- standardized JSONL attempt records to `data/processed/student_attempts.jsonl`
+- sample processed records to `sample_outputs/standardized_attempts_sample.json`
+- a student performance summary to `sample_outputs/student_8_summary.json`
+- a Gemini-ready structured input payload to `sample_outputs/student_8_gemini_input.json`
+- execution logs under `logs/`
 
 ## Example assessment payload
 

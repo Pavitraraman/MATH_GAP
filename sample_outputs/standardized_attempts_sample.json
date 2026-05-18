@@ -1,0 +1,47 @@
+[
+  {
+    "student_id": "8",
+    "skill": "Properties Of Geometric Figures",
+    "correct": 0,
+    "attempt_time": 49.0,
+    "timestamp": 1096470301,
+    "difficulty": null,
+    "problem_id": "1118"
+  },
+  {
+    "student_id": "8",
+    "skill": "Properties Of Geometric Figures",
+    "correct": 1,
+    "attempt_time": 3.999999762,
+    "timestamp": 1096470350,
+    "difficulty": null,
+    "problem_id": "1119"
+  },
+  {
+    "student_id": "8",
+    "skill": "Sum Of Interior Angles More Than 3 Sides",
+    "correct": 0,
+    "attempt_time": 6.000000237999999,
+    "timestamp": 1096470354,
+    "difficulty": null,
+    "problem_id": "1120"
+  },
+  {
+    "student_id": "8",
+    "skill": "Sum Of Interior Angles More Than 3 Sides",
+    "correct": 0,
+    "attempt_time": 17.99999976,
+    "timestamp": 1096470360,
+    "difficulty": null,
+    "problem_id": "1120"
+  },
+  {
+    "student_id": "8",
+    "skill": "Sum Of Interior Angles More Than 3 Sides",
+    "correct": 1,
+    "attempt_time": 1.9999997619999998,
+    "timestamp": 1096470378,
+    "difficulty": null,
+    "problem_id": "1121"
+  }
+]

@@ -5,3 +5,4 @@ __pycache__/
 *.pyc
 data/processed/
 students dataset.csv
+logs/*.log

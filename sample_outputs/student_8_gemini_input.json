@@ -1,0 +1,277 @@
+{
+  "student_id": "8",
+  "overall_accuracy": 0.4839,
+  "weak_topics": [
+    {
+      "skill": "Rate",
+      "accuracy": 0.0,
+      "attempts": 10,
+      "average_attempt_time": 10.9
+    },
+    {
+      "skill": "Combinatorics",
+      "accuracy": 0.1176,
+      "attempts": 34,
+      "average_attempt_time": 17.47
+    },
+    {
+      "skill": "Statistics",
+      "accuracy": 0.2,
+      "attempts": 5,
+      "average_attempt_time": 11.8
+    },
+    {
+      "skill": "Transversals",
+      "accuracy": 0.2,
+      "attempts": 5,
+      "average_attempt_time": 14.0
+    },
+    {
+      "skill": "Linear Area Volume Conversion",
+      "accuracy": 0.2308,
+      "attempts": 13,
+      "average_attempt_time": 7.85
+    },
+    {
+      "skill": "Evaluating Functions",
+      "accuracy": 0.2391,
+      "attempts": 46,
+      "average_attempt_time": 26.3
+    },
+    {
+      "skill": "Isosceles Triangle",
+      "accuracy": 0.25,
+      "attempts": 8,
+      "average_attempt_time": 24.0
+    },
+    {
+      "skill": "Inequality Solving",
+      "accuracy": 0.2727,
+      "attempts": 33,
+      "average_attempt_time": 24.21
+    },
+    {
+      "skill": "Subtracting Decimals",
+      "accuracy": 0.2727,
+      "attempts": 11,
+      "average_attempt_time": 37.36
+    },
+    {
+      "skill": "Mean",
+      "accuracy": 0.303,
+      "attempts": 66,
+      "average_attempt_time": 6.03
+    },
+    {
+      "skill": "Fractions",
+      "accuracy": 0.3077,
+      "attempts": 13,
+      "average_attempt_time": 8.69
+    },
+    {
+      "skill": "Median",
+      "accuracy": 0.3077,
+      "attempts": 13,
+      "average_attempt_time": 16.62
+    },
+    {
+      "skill": "Pythagorean Theorem",
+      "accuracy": 0.3125,
+      "attempts": 16,
+      "average_attempt_time": 16.44
+    },
+    {
+      "skill": "Reciprocal",
+      "accuracy": 0.3125,
+      "attempts": 16,
+      "average_attempt_time": 9.56
+    },
+    {
+      "skill": "Order Of Operations",
+      "accuracy": 0.3333,
+      "attempts": 12,
+      "average_attempt_time": 18.0
+    },
+    {
+      "skill": "Venn Diagram",
+      "accuracy": 0.3333,
+      "attempts": 12,
+      "average_attempt_time": 28.92
+    },
+    {
+      "skill": "Fraction Division",
+      "accuracy": 0.3333,
+      "attempts": 9,
+      "average_attempt_time": 18.44
+    },
+    {
+      "skill": "Comparing Fractions",
+      "accuracy": 0.3333,
+      "attempts": 3,
+      "average_attempt_time": 101.0
+    },
+    {
+      "skill": "Meaning Of Pi",
+      "accuracy": 0.3333,
+      "attempts": 3,
+      "average_attempt_time": 6.0
+    },
+    {
+      "skill": "Equation Solving",
+      "accuracy": 0.3636,
+      "attempts": 55,
+      "average_attempt_time": 15.6
+    },
+    {
+      "skill": "Unit Conversion",
+      "accuracy": 0.375,
+      "attempts": 16,
+      "average_attempt_time": 19.19
+    },
+    {
+      "skill": "Triangle Inequality",
+      "accuracy": 0.375,
+      "attempts": 8,
+      "average_attempt_time": 9.37
+    },
+    {
+      "skill": "Area",
+      "accuracy": 0.3784,
+      "attempts": 37,
+      "average_attempt_time": 31.19
+    },
+    {
+      "skill": "Symbolization Articulation",
+      "accuracy": 0.3922,
+      "attempts": 51,
+      "average_attempt_time": 17.39
+    },
+    {
+      "skill": "Discount",
+      "accuracy": 0.4074,
+      "attempts": 27,
+      "average_attempt_time": 44.81
+    },
+    {
+      "skill": "Percent Of",
+      "accuracy": 0.4091,
+      "attempts": 22,
+      "average_attempt_time": 17.77
+    },
+    {
+      "skill": "Reading Graph",
+      "accuracy": 0.4348,
+      "attempts": 46,
+      "average_attempt_time": 13.76
+    },
+    {
+      "skill": "Sum Of Interior Angles More Than 3 Sides",
+      "accuracy": 0.4375,
+      "attempts": 16,
+      "average_attempt_time": 20.56
+    },
+    {
+      "skill": "Properties Of Geometric Figures",
+      "accuracy": 0.4545,
+      "attempts": 11,
+      "average_attempt_time": 26.82
+    },
+    {
+      "skill": "Supplementary Angles",
+      "accuracy": 0.4545,
+      "attempts": 11,
+      "average_attempt_time": 52.64
+    },
+    {
+      "skill": "Interpreting Linear Equations",
+      "accuracy": 0.5,
+      "attempts": 10,
+      "average_attempt_time": 17.0
+    },
+    {
+      "skill": "Making Sense Of Expressions And Equations",
+      "accuracy": 0.5,
+      "attempts": 10,
+      "average_attempt_time": 15.7
+    },
+    {
+      "skill": "Percents",
+      "accuracy": 0.5,
+      "attempts": 8,
+      "average_attempt_time": 15.12
+    },
+    {
+      "skill": "Proportion",
+      "accuracy": 0.5,
+      "attempts": 8,
+      "average_attempt_time": 11.87
+    },
+    {
+      "skill": "Transformations Rotations",
+      "accuracy": 0.5,
+      "attempts": 4,
+      "average_attempt_time": 10.0
+    },
+    {
+      "skill": "Inducing Functions",
+      "accuracy": 0.5385,
+      "attempts": 13,
+      "average_attempt_time": 27.0
+    },
+    {
+      "skill": "Equation Concept",
+      "accuracy": 0.5556,
+      "attempts": 9,
+      "average_attempt_time": 37.89
+    },
+    {
+      "skill": "Subtraction",
+      "accuracy": 0.5625,
+      "attempts": 16,
+      "average_attempt_time": 13.06
+    },
+    {
+      "skill": "Pattern Finding",
+      "accuracy": 0.5789,
+      "attempts": 19,
+      "average_attempt_time": 32.89
+    },
+    {
+      "skill": "Algebraic Manipulation",
+      "accuracy": 0.5833,
+      "attempts": 12,
+      "average_attempt_time": 34.08
+    },
+    {
+      "skill": "Graph Shape",
+      "accuracy": 0.5882,
+      "attempts": 17,
+      "average_attempt_time": 20.24
+    },
+    {
+      "skill": "Multiplication",
+      "accuracy": 0.6042,
+      "attempts": 48,
+      "average_attempt_time": 22.35
+    },
+    {
+      "skill": "Probability",
+      "accuracy": 0.6207,
+      "attempts": 29,
+      "average_attempt_time": 22.03
+    },
+    {
+      "skill": "Multiplying Decimals",
+      "accuracy": 0.6667,
+      "attempts": 12,
+      "average_attempt_time": 64.75
+    },
+    {
+      "skill": "Application: Isosceles Triangle",
+      "accuracy": 0.6667,
+      "attempts": 3,
+      "average_attempt_time": 12.33
+    }
+  ],
+  "total_attempts": 1056
+}
