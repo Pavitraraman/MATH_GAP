@@ -14,6 +14,7 @@ FastAPI backend for an LLM-powered adaptive math recommendation engine.
 - JSON structured outputs
 - latency and cost logging
 - graceful Gemini provider error handling
+- Gemini-powered learning gap analysis with retry support
 
 ## Project structure
 
@@ -50,6 +51,7 @@ python -m pip install -e ".[dev]"
 - `POST /assessments`
 - `POST /recommendations/{assessment_id}`
 - `GET /metrics/dashboard`
+- `POST /analysis/learning-gap`
 
 ## Gemini configuration
 
@@ -63,6 +65,8 @@ DEFAULT_PROMPT_VERSION=v1
 ```
 
 The backend requests structured JSON responses, validates them against the recommendation schema, records latency/cost metadata for every call, and returns `502 Bad Gateway` when Gemini fails or produces invalid structured output.
+
+The learning-gap analysis endpoint accepts a processed student performance summary and returns weak concepts, confidence scores, a recommended difficulty progression, and a suggested practice strategy. The service persists both the prompt metadata and model output, and retries bounded transient failures before surfacing an error.
 
 ## Dataset preprocessing
 

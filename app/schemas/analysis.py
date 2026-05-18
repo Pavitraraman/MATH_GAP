@@ -7,7 +7,6 @@ class LLMWeakTopic(BaseModel):
 
 
 class StudentLLMAnalysis(BaseModel):
-    weak_topics: list[LLMWeakTopic]
+    weak_concepts: list[LLMWeakTopic]
     recommended_difficulty_progression: list[str]
-    practice_focus_areas: list[str]
-
+    suggested_practice_strategy: list[str]

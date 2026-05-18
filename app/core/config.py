@@ -15,6 +15,8 @@ class Settings(BaseSettings):
     output_cost_per_1k_tokens_usd: float = 0.0
     default_prompt_name: str = "adaptive_recommendation"
     default_prompt_version: str = "v1"
+    llm_max_retries: int = 2
+    llm_retry_base_delay_seconds: float = 0.5
 
 
 @lru_cache
@@ -23,4 +25,3 @@ def get_settings() -> Settings:
 
 
 settings = get_settings()
-

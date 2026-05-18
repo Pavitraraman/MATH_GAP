@@ -33,3 +33,15 @@ class LLMCallLog(Base):
     response_json: Mapped[dict] = mapped_column(JSON, default=dict)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
+
+class LearningGapAnalysis(Base):
+    __tablename__ = "learning_gap_analyses"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    student_id: Mapped[str] = mapped_column(String(128), index=True)
+    prompt_name: Mapped[str] = mapped_column(String(128))
+    prompt_version: Mapped[str] = mapped_column(String(64))
+    model: Mapped[str] = mapped_column(String(128))
+    input_summary_json: Mapped[dict] = mapped_column(JSON)
+    output_json: Mapped[dict] = mapped_column(JSON)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())

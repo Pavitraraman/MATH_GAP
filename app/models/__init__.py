@@ -1,5 +1,5 @@
 from app.models.assessment import Assessment, TopicScore
-from app.models.llm import LLMCallLog, PromptVersion
+from app.models.llm import LLMCallLog, LearningGapAnalysis, PromptVersion
 from app.models.recommendation import Recommendation
 
 __all__ = [
@@ -8,5 +8,5 @@ __all__ = [
     "PromptVersion",
     "Recommendation",
     "LLMCallLog",
+    "LearningGapAnalysis",
 ]
-

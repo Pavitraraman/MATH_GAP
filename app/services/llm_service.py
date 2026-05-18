@@ -1,4 +1,5 @@
 import json
+import asyncio
 from time import perf_counter
 
 from google import genai
@@ -92,6 +93,30 @@ class LLMService:
             await self.db.commit()
 
     async def generate_structured(
+        self,
+        *,
+        prompt: PromptVersion,
+        rendered_prompt: str,
+        schema: type[BaseModel],
+    ) -> BaseModel:
+        last_error: Exception | None = None
+        for attempt in range(settings.llm_max_retries + 1):
+            try:
+                return await self._generate_structured_once(
+                    prompt=prompt,
+                    rendered_prompt=rendered_prompt,
+                    schema=schema,
+                )
+            except LLMProviderError as exc:
+                last_error = exc
+                if attempt >= settings.llm_max_retries:
+                    raise
+                delay = settings.llm_retry_base_delay_seconds * (2**attempt)
+                logger.warning("Retrying Gemini structured call after failure (attempt %s).", attempt + 1)
+                await asyncio.sleep(delay)
+        raise LLMProviderError("Gemini request failed after retries.") from last_error
+
+    async def _generate_structured_once(
         self,
         *,
         prompt: PromptVersion,
