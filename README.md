@@ -22,6 +22,7 @@ app/                    # API, schemas, services, models, database access
 prompts/                # versioned LLM prompts
 evaluation/             # offline evaluation utilities
 recommendation_engine/  # deterministic recommendation logic
+data_pipeline/           # dataset preprocessing and standardization
 docs/                   # architecture documentation
 main.py                 # root FastAPI entry point
 requirements.txt        # pip-friendly dependency list
@@ -62,6 +63,16 @@ DEFAULT_PROMPT_VERSION=v1
 ```
 
 The backend requests structured JSON responses, validates them against the recommendation schema, records latency/cost metadata for every call, and returns `502 Bad Gateway` when Gemini fails or produces invalid structured output.
+
+## Dataset preprocessing
+
+The repository includes a streaming preprocessing pipeline for the downloaded educational dataset:
+
+```powershell
+python scripts/preprocess_dataset.py
+```
+
+This writes standardized JSONL attempt records to `data/processed/student_attempts.jsonl`.
 
 ## Example assessment payload
 

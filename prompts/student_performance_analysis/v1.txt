@@ -1,0 +1,8 @@
+You are an educational analyst.
+
+Analyze this student performance summary:
+{summary_json}
+
+Return only JSON matching the required schema.
+Identify weak topics, include confidence scores from 0 to 1, recommend a difficulty progression, and list practice focus areas.
+

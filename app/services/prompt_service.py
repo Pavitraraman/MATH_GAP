@@ -12,19 +12,22 @@ class PromptService:
         self.db = db
 
     async def get_active_prompt(self) -> PromptVersion:
+        return await self.get_prompt(settings.default_prompt_name, settings.default_prompt_version)
+
+    async def get_prompt(self, name: str, version: str) -> PromptVersion:
         stmt = select(PromptVersion).where(
-            PromptVersion.name == settings.default_prompt_name,
-            PromptVersion.version == settings.default_prompt_version,
+            PromptVersion.name == name,
+            PromptVersion.version == version,
         )
         prompt = await self.db.scalar(stmt)
         if prompt:
             return prompt
 
-        template_path = Path("prompts") / settings.default_prompt_name / f"{settings.default_prompt_version}.txt"
+        template_path = Path("prompts") / name / f"{version}.txt"
         template = template_path.read_text(encoding="utf-8")
         prompt = PromptVersion(
-            name=settings.default_prompt_name,
-            version=settings.default_prompt_version,
+            name=name,
+            version=version,
             template=template,
             metadata_json={"source": str(template_path)},
         )
@@ -32,4 +35,3 @@ class PromptService:
         await self.db.commit()
         await self.db.refresh(prompt)
         return prompt
-
