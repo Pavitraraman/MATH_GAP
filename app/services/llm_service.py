@@ -6,8 +6,12 @@ from google.genai import types
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import settings
+from app.core.exceptions import LLMProviderError
+from app.core.logging import get_logger
 from app.models.llm import LLMCallLog, PromptVersion
 from app.schemas.recommendation import RecommendationPlan
+
+logger = get_logger(__name__)
 
 
 class LLMService:
@@ -30,6 +34,7 @@ class LLMService:
 
         try:
             if self.client is None:
+                status = "fallback"
                 response_payload = fallback_plan.model_dump()
                 return fallback_plan
 
@@ -41,15 +46,27 @@ class LLMService:
                     response_json_schema=RecommendationPlan.model_json_schema(),
                 ),
             )
+            if not response.text:
+                raise LLMProviderError("Gemini returned an empty response body.")
             response_payload = json.loads(response.text)
             usage = getattr(response, "usage_metadata", None)
             input_tokens = getattr(usage, "prompt_token_count", 0) or 0
             output_tokens = getattr(usage, "candidates_token_count", 0) or 0
             return RecommendationPlan.model_validate(response_payload)
+        except (json.JSONDecodeError, ValueError) as exc:
+            status = "invalid_response"
+            response_payload = {"error": str(exc)}
+            logger.exception("Gemini returned invalid structured output.")
+            raise LLMProviderError("Gemini returned invalid structured JSON.") from exc
+        except LLMProviderError:
+            status = "error"
+            logger.exception("Gemini provider error.")
+            raise
         except Exception as exc:
             status = "error"
             response_payload = {"error": str(exc)}
-            raise
+            logger.exception("Gemini request failed.")
+            raise LLMProviderError("Gemini request failed.") from exc
         finally:
             latency_ms = (perf_counter() - started) * 1000
             estimated_cost = (
@@ -71,4 +88,3 @@ class LLMService:
                 )
             )
             await self.db.commit()
-

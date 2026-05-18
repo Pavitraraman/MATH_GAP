@@ -13,6 +13,7 @@ FastAPI backend for an LLM-powered adaptive math recommendation engine.
 - PostgreSQL integration
 - JSON structured outputs
 - latency and cost logging
+- graceful Gemini provider error handling
 
 ## Project structure
 
@@ -48,6 +49,19 @@ python -m pip install -e ".[dev]"
 - `POST /assessments`
 - `POST /recommendations/{assessment_id}`
 - `GET /metrics/dashboard`
+
+## Gemini configuration
+
+Configure Gemini via environment variables in `.env`:
+
+```env
+GEMINI_API_KEY=your_key_here
+GEMINI_MODEL=gemini-2.5-flash
+DEFAULT_PROMPT_NAME=adaptive_recommendation
+DEFAULT_PROMPT_VERSION=v1
+```
+
+The backend requests structured JSON responses, validates them against the recommendation schema, records latency/cost metadata for every call, and returns `502 Bad Gateway` when Gemini fails or produces invalid structured output.
 
 ## Example assessment payload
 
