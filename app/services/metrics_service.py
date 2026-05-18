@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.models.assessment import Assessment
 from app.models.llm import LLMCallLog
 from app.models.recommendation import Recommendation
-from app.schemas.metrics import DashboardMetrics
+from app.schemas.metrics import DashboardMetrics, LLMCallLogRead
 
 
 class MetricsService:
@@ -29,3 +29,8 @@ class MetricsService:
             recommendation_coverage_rate=round(coverage, 4),
         )
 
+    async def recent_llm_logs(self, limit: int = 20) -> list[LLMCallLogRead]:
+        result = await self.db.scalars(
+            select(LLMCallLog).order_by(LLMCallLog.created_at.desc()).limit(limit)
+        )
+        return [LLMCallLogRead.model_validate(item) for item in result.all()]

@@ -9,3 +9,18 @@ class DashboardMetrics(BaseModel):
     total_estimated_llm_cost_usd: float
     recommendation_coverage_rate: float
 
+
+class LLMCallLogRead(BaseModel):
+    id: int
+    model: str
+    prompt_name: str
+    prompt_version: str
+    latency_ms: float
+    input_tokens: int
+    output_tokens: int
+    estimated_cost_usd: float
+    status: str
+    request_json: dict
+    response_json: dict
+
+    model_config = {"from_attributes": True}

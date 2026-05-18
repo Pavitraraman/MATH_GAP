@@ -51,6 +51,7 @@ python -m pip install -e ".[dev]"
 - `POST /assessments`
 - `POST /recommendations/{assessment_id}`
 - `GET /metrics/dashboard`
+- `GET /metrics/llm-logs`
 - `POST /analysis/learning-gap`
 
 ## Gemini configuration
@@ -84,6 +85,17 @@ This writes:
 - a student performance summary to `sample_outputs/student_8_summary.json`
 - a Gemini-ready structured input payload to `sample_outputs/student_8_gemini_input.json`
 - execution logs under `logs/`
+
+## Streamlit dashboard
+
+Start the API first, then launch the dashboard:
+
+```powershell
+uvicorn main:app --reload
+streamlit run dashboard/streamlit_app.py
+```
+
+The dashboard shows uploaded student data, topic-wise accuracy, weak concepts, live Gemini analysis output, recommended questions, latency metrics, prompt versions, and model response logs, with filtering by `student_id`.
 
 ## Example assessment payload
 
