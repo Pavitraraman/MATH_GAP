@@ -35,18 +35,20 @@ if "localhost:8000" in API_BASE_URL or "127.0.0.1:8000" in API_BASE_URL:
         try:
             # Try to run uvicorn from the environment's python executable
             # This is 100% portable on local systems, Streamlit Sharing, Hugging Face, etc.
+            # Setting cwd=str(root_dir) is critical so Python can resolve the "app" module!
             subprocess.Popen(
                 [sys.executable, "-m", "uvicorn", "app.main:app", "--host", "127.0.0.1", "--port", "8000"],
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL,
+                cwd=str(root_dir),
                 close_fds=True
             )
-            # Give it up to 5 seconds to wake up
-            for _ in range(10):
+            # Give it up to 10 seconds to wake up (checking every 1s)
+            for i in range(10):
                 if is_port_open(8000):
                     logger.info("FastAPI background backend successfully started and listening on port 8000!")
                     break
-                time.sleep(0.5)
+                time.sleep(1.0)
+            else:
+                logger.error("FastAPI backend failed to start within 10 seconds.")
         except Exception as e:
             logger.error(f"Failed to auto-start FastAPI backend: {e}")
 
