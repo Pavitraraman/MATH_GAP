@@ -24,3 +24,13 @@ class LLMCallLogRead(BaseModel):
     response_json: dict
 
     model_config = {"from_attributes": True}
+
+
+class EvaluationMetrics(BaseModel):
+    recommendation_relevance: float
+    improvement_rate: float
+    hallucination_rate: float
+    average_latency_ms: float
+    cost_per_session: float
+    output_consistency: float
+

@@ -76,6 +76,16 @@ class LLMService:
                 (input_tokens / 1000) * settings.input_cost_per_1k_tokens_usd
                 + (output_tokens / 1000) * settings.output_cost_per_1k_tokens_usd
             )
+            self._log_call_details(
+                prompt=prompt,
+                rendered_prompt=rendered_prompt,
+                response_payload=response_payload,
+                latency_ms=latency_ms,
+                input_tokens=input_tokens,
+                output_tokens=output_tokens,
+                estimated_cost=estimated_cost,
+                status=status,
+            )
             self.db.add(
                 LLMCallLog(
                     model=settings.gemini_model,
@@ -91,6 +101,7 @@ class LLMService:
                 )
             )
             await self.db.commit()
+
 
     async def generate_structured(
         self,
@@ -166,6 +177,16 @@ class LLMService:
                 (input_tokens / 1000) * settings.input_cost_per_1k_tokens_usd
                 + (output_tokens / 1000) * settings.output_cost_per_1k_tokens_usd
             )
+            self._log_call_details(
+                prompt=prompt,
+                rendered_prompt=rendered_prompt,
+                response_payload=response_payload,
+                latency_ms=latency_ms,
+                input_tokens=input_tokens,
+                output_tokens=output_tokens,
+                estimated_cost=estimated_cost,
+                status=status,
+            )
             self.db.add(
                 LLMCallLog(
                     model=settings.gemini_model,
@@ -181,3 +202,49 @@ class LLMService:
                 )
             )
             await self.db.commit()
+
+    def _log_call_details(
+        self,
+        *,
+        prompt: PromptVersion,
+        rendered_prompt: str,
+        response_payload: dict,
+        latency_ms: float,
+        input_tokens: int,
+        output_tokens: int,
+        estimated_cost: float,
+        status: str,
+    ) -> None:
+        # 1. Print to terminal for debugging
+        print("\n" + "="*80)
+        print(f"🤖 DEBUG: Gemini Response | Prompt: {prompt.name} ({prompt.version}) | Status: {status}")
+        print(f"Latency: {latency_ms:.2f}ms | Tokens: {input_tokens} in / {output_tokens} out | Cost: ${estimated_cost:.6f}")
+        print("-"*80)
+        print(json.dumps(response_payload, indent=2, ensure_ascii=False))
+        print("="*80 + "\n")
+
+        # 2. Write to logs/ directory file
+        try:
+            from datetime import datetime
+            from pathlib import Path
+            log_dir = Path("logs")
+            log_dir.mkdir(exist_ok=True)
+            log_file = log_dir / "gemini_calls.jsonl"
+            
+            log_entry = {
+                "timestamp": datetime.utcnow().isoformat(),
+                "prompt_name": prompt.name,
+                "prompt_version": prompt.version,
+                "prompt": rendered_prompt,
+                "response": response_payload,
+                "latency_ms": latency_ms,
+                "input_tokens": input_tokens,
+                "output_tokens": output_tokens,
+                "estimated_cost_usd": estimated_cost,
+                "status": status
+            }
+            with log_file.open("a", encoding="utf-8") as f:
+                f.write(json.dumps(log_entry, ensure_ascii=False) + "\n")
+        except Exception as exc:
+            logger.error("Failed to write LLM log to logs/ directory: %s", exc)
+

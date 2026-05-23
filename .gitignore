@@ -6,3 +6,4 @@ __pycache__/
 data/processed/
 students dataset.csv
 logs/*.log
+processed_outputs/

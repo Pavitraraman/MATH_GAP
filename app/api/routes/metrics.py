@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import get_db
-from app.schemas.metrics import DashboardMetrics, LLMCallLogRead
+from app.schemas.metrics import DashboardMetrics, LLMCallLogRead, EvaluationMetrics
 from app.services.metrics_service import MetricsService
 
 router = APIRouter()
@@ -19,3 +19,9 @@ async def llm_logs(
     db: AsyncSession = Depends(get_db),
 ) -> list[LLMCallLogRead]:
     return await MetricsService(db).recent_llm_logs(limit=limit)
+
+
+@router.get("/evaluation", response_model=EvaluationMetrics)
+async def evaluation(db: AsyncSession = Depends(get_db)) -> EvaluationMetrics:
+    return await MetricsService(db).evaluation()
+

@@ -1,0 +1,22 @@
+services:
+  # 1. FastAPI backend service
+  - type: web
+    name: math-gap-api
+    env: python
+    buildCommand: pip install -r requirements.txt && python scripts/precompute_student_attempts.py && python scripts/precompute_question_index.py && python scripts/create_demo_students.py
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: DATABASE_URL
+        value: sqlite:///./math_gap.db
+      - key: GEMINI_API_KEY
+        sync: false
+
+  # 2. Streamlit frontend service
+  - type: web
+    name: math-gap-dashboard
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: streamlit run dashboard/streamlit_app.py --server.port $PORT --server.address 0.0.0.0
+    envVars:
+      - key: API_BASE_URL
+        value: https://math-gap-api.onrender.com

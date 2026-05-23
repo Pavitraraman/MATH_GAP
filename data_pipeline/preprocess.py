@@ -4,6 +4,8 @@ import re
 from collections.abc import Iterator
 from pathlib import Path
 
+import pandas as pd
+
 from data_pipeline.schemas import StandardizedAttempt
 
 NULL_LIKE = {"", "na", "n/a", "null", "none"}
@@ -22,26 +24,42 @@ def clean_value(value: str | None) -> str | None:
     return None if stripped.lower() in NULL_LIKE else stripped
 
 
-def iter_standardized_attempts(csv_path: str | Path) -> Iterator[StandardizedAttempt]:
-    with Path(csv_path).open(newline="", encoding="utf-8-sig") as handle:
+def standardize_row(raw_row: dict) -> StandardizedAttempt | None:
+    row = {normalize_column_name(str(key)): clean_value(None if value is None else str(value)) for key, value in raw_row.items()}
+    student_id = row.get("student_id")
+    skill = row.get("skill")
+    correct = row.get("correct")
+    attempt_time = row.get("time_taken") or row.get("attempt_time")
+    if not all([student_id, skill, correct, attempt_time]):
+        return None
+    return StandardizedAttempt(
+        student_id=str(student_id),
+        skill=str(skill).replace("-", " ").title(),
+        correct=int(float(correct)),
+        attempt_time=float(attempt_time),
+        timestamp=int(float(row["start_time"])) if row.get("start_time") else None,
+        difficulty=row.get("difficulty"),
+        problem_id=row.get("problem_id"),
+    )
+
+
+def iter_standardized_attempts(dataset_path: str | Path) -> Iterator[StandardizedAttempt]:
+    path = Path(dataset_path)
+    if path.suffix.lower() in {".xlsx", ".xls"}:
+        dataframe = pd.read_excel(path)
+        dataframe = dataframe.where(pd.notna(dataframe), None)
+        for raw_row in dataframe.to_dict(orient="records"):
+            attempt = standardize_row(raw_row)
+            if attempt is not None:
+                yield attempt
+        return
+
+    with path.open(newline="", encoding="utf-8-sig") as handle:
         reader = csv.DictReader(handle)
         for raw_row in reader:
-            row = {normalize_column_name(key): clean_value(value) for key, value in raw_row.items()}
-            student_id = row.get("student_id")
-            skill = row.get("skill")
-            correct = row.get("correct")
-            attempt_time = row.get("time_taken")
-            if not all([student_id, skill, correct, attempt_time]):
-                continue
-            yield StandardizedAttempt(
-                student_id=student_id,
-                skill=skill.replace("-", " ").title(),
-                correct=int(float(correct)),
-                attempt_time=float(attempt_time),
-                timestamp=int(float(row["start_time"])) if row.get("start_time") else None,
-                difficulty=row.get("difficulty"),
-                problem_id=row.get("problem_id"),
-            )
+            attempt = standardize_row(raw_row)
+            if attempt is not None:
+                yield attempt
 
 
 def write_jsonl(csv_path: str | Path, output_path: str | Path) -> int:
@@ -51,4 +69,3 @@ def write_jsonl(csv_path: str | Path, output_path: str | Path) -> int:
             handle.write(json.dumps(attempt.model_dump(), ensure_ascii=False) + "\n")
             count += 1
     return count
-

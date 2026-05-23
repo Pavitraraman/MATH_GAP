@@ -4,4 +4,7 @@ Analyze this student performance summary:
 {summary_json}
 
 Return only JSON matching the required schema.
-Identify weak concepts, include confidence scores from 0 to 1, recommend a difficulty progression, and suggest a practical study strategy.
+Under "weak_concepts", identify the specific mathematical concepts/skills where the student is struggling, provide detailed, diagnostic "reasoning" (explaining error patterns, response times, and exact performance indicators), and provide a "confidence_score" between 0.0 and 1.0.
+Under "recommended_learning_strategy", suggest a comprehensive, high-level learning strategy to master the identified gaps.
+Under "personalized_practice_recommendations", provide a list of concrete practice suggestions and question types that would benefit the student.
+
