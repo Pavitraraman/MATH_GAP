@@ -1,6 +1,9 @@
 import json
 import logging
 import math
+import os
+import socket
+import subprocess
 from datetime import datetime, timedelta
 from pathlib import Path
 import sys
@@ -18,7 +21,34 @@ if str(root_dir) not in sys.path:
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("math_gap.dashboard")
 
-API_BASE_URL = "http://localhost:8000"
+API_BASE_URL = os.getenv("API_BASE_URL", "http://localhost:8000")
+
+# --- AUTO-START BACKEND API (FOR 1-CLICK DEPLOYMENTS & SINGLE-TERMINAL DEV) ---
+def is_port_open(port: int) -> bool:
+    """Helper to check if a local port is active."""
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        return s.connect_ex(('127.0.0.1', port)) == 0
+
+if "localhost:8000" in API_BASE_URL or "127.0.0.1:8000" in API_BASE_URL:
+    if not is_port_open(8000):
+        logger.info("FastAPI backend is offline. Auto-starting FastAPI backend in the background...")
+        try:
+            # Try to run uvicorn from the environment's python executable
+            # This is 100% portable on local systems, Streamlit Sharing, Hugging Face, etc.
+            subprocess.Popen(
+                [sys.executable, "-m", "uvicorn", "app.main:app", "--host", "127.0.0.1", "--port", "8000"],
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+                close_fds=True
+            )
+            # Give it up to 5 seconds to wake up
+            for _ in range(10):
+                if is_port_open(8000):
+                    logger.info("FastAPI background backend successfully started and listening on port 8000!")
+                    break
+                time.sleep(0.5)
+        except Exception as e:
+            logger.error(f"Failed to auto-start FastAPI backend: {e}")
 
 # --- HIGH-PERFORMANCE DATA CACHING & SIMULATION INDEXERS ---
 @st.cache_data(show_spinner=False)

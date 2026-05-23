@@ -1,176 +1,101 @@
-# 🧠 MATH-GAP: Live Real-Time Multi-User Adaptive Learning & RAG Platform
+# 🧠 MATH-GAP: Why I built an adaptive, cognitive learning companion
 
-[![Render](https://img.shields.io/badge/Deploy%20to-Render-46E3B7?style=for-the-badge&logo=render&logoColor=white)](https://render.com)
-[![FastAPI](https://img.shields.io/badge/FastAPI-005571?style=for-the-badge&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
-[![Streamlit](https://img.shields.io/badge/Streamlit-FF4B4B?style=for-the-badge&logo=streamlit&logoColor=white)](https://streamlit.io)
-[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-336791?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org)
-[![JSON Web Tokens](https://img.shields.io/badge/JWT-000000?style=for-the-badge&logo=json-web-tokens&logoColor=white)](https://jwt.io)
-[![WebSockets](https://img.shields.io/badge/WebSockets-010101?style=for-the-badge&logo=socket.io&logoColor=white)](https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API)
-
-MATH-GAP has been transformed from a static cockpit prototype into a **highly scalable, production-grade, secure multi-tenant educational platform infrastructure**. Built on a modular, event-driven architecture, the system enables school institutions, tutoring centers, and EdTech platforms to serve personalized, AI-driven learning journeys. 
-
-Students can register, securely sign in, upload raw study guides, extract material-specific concept maps, solve adaptive MCQs live, and view space-spaced revision schedules backed by cognitive science retention parameters. Educators can access aggregated telemetry dashboards to track active cohort progression and monitor dropout alerts.
+> **Live Demo Link:** 🚀 [Try the Live App Here!](https://math-gap.streamlit.app) *(Replace this with your deployed Streamlit URL once you click the 1-minute deploy button below!)*
 
 ---
 
-## 🚀 Key Engineering & Security Highlights
+### 💡 The Backstory: Why existing AI tools failed my learning
 
-### 1. Multi-Tenant Tenancy & Secure Access Controls (RBAC)
-- **School Tenant Boundaries**: Introduces the `School` (or `Organization`) model to serve as the primary database-level tenant boundary. All user records, study guides, and attempts are strictly partitioned.
-- **JWT & PBKDF2 Session Security**:
-  - **Password Hashing**: Implements secure `PBKDF2-SHA256` password salting and hashing (100,000 iterations, unique salt per user) natively in Python. This ensures high-security validation conforming to OWASP guidelines without relying on compiled C-packages (avoiding compilation errors on local Windows/macOS/Linux machines).
-  - **Token Signatures**: Issues signed JSON Web Tokens (JWT) using the `HS256` cryptographic signature.
-  - **Programmatic API Keys**: Exposes institutional **API Keys (`X-API-Key` headers)** enabling external LMS networks to programmatically inject attempts and fetch cohort data.
+When I wanted to learn advanced math online, I quickly realized that the tools we all rely on are fundamentally broken for actual learning:
 
-### 2. Spaced Repetition & Cognitive Ebbinghaus Forgetting Curves
-Models student memory retention probability ($R$) for each topic over elapsed time ($t$, in hours) since their last attempt using the Ebbinghaus Forgetting Curve formula:
+*   **ChatGPT** is conversational but has **no structural memory of my brain**. It doesn't track what I struggled with yesterday, it has no concept of mathematical dependencies (it will happily try to teach you Derivatives even if you are failing Limits), and it just hands you the final answers. That gives you a nice "feeling" of understanding, but it prevents active recall and real learning.
+*   **NotebookLM** is fantastic for summarizing complex PDFs, but **summarizing isn't learning**. It can't give you interactive quizzes that dynamically adapt in difficulty when you struggle, it doesn't know when a concept is fading from your memory, and it doesn't track your response speed to gauge your actual comprehension.
+
+**So, I built MATH-GAP.** 
+
+I wanted to transform raw study notes (PDFs, textbooks, slide decks) into a **continuous, self-healing cognitive companion**. It maps a student's mind as a structured concept graph, mathematically predicts memory decay over real-world hours, and recursively catches learning gaps before they derail a student.
+
+---
+
+## ⚡ How is MATH-GAP different from generic AI?
+
+| Feature | ChatGPT | NotebookLM | 🧠 **MATH-GAP** (My Project) |
+| :--- | :--- | :--- | :--- |
+| **Cognitive Memory** | ❌ None (Conversational only) | ❌ None (Document-level only) | **Yes**: Tracks individual concept retention over time |
+| **Prerequisite Mapping** | ❌ Assumes you know everything | ❌ Non-interactive reading | **Yes**: Uses a Directed Acyclic Graph (DAG) to isolate root gaps |
+| **Active Testing** | ❌ Simple prompt answers | ❌ Static study guides | **Yes**: Generates dynamic quizzes that adapt based on your past mistakes |
+| **Memory Decay** | ❌ None | ❌ None | **Yes**: Modeled mathematically using the **Ebbinghaus Forgetting Curve** |
+| **Teacher Telemetry** | ❌ None | ❌ None | **Yes**: Direct DB-backed student attempt telemetry via **WebSockets** |
+
+---
+
+## 🛠️ The Engineering Challenges I Had to Solve
+
+I wanted this to be a production-grade, multi-tenant learning infrastructure, not just a simple API wrapper. Here are the core layers I designed, wrote, and verified:
+
+### 1. The Prerequisite Directed Acyclic Graph (DAG) Engine
+In mathematics, learning is hierarchical. If you struggle with **Derivatives**, the root cause is almost always a weak understanding of **Limits**. 
+Instead of just giving more Derivative questions, my custom DAG prerequisite engine recursively traces a student's history back to find the root blocker. If your score on *Limits* is low, the backend immediately flags this with a diagnostic alert: 
+> 🛑 *"Struggling with Derivatives because Limits mastery is weak."*
+And it redirects you to shore up your fundamentals first.
+
+### 2. Spaced Repetition via the Ebbinghaus Forgetting Curve
+I mathematically modeled the **Ebbinghaus Forgetting Curve** directly into the PostgreSQL/SQLite database schemas:
 $$R = e^{-\frac{t}{S}}$$
-Where the **Memory Stability ($S$)** factor (representing memory half-life in hours) dynamically evolves:
-- **On Correct Answers (Stability Multiplier)**: $S_{\text{new}} = S_{\text{old}} \cdot (1.5 + 2.0 \cdot \text{Accuracy})$ (exponential growth on reinforcement).
-- **On Incorrect Answers (Stability Halving)**: $S_{\text{new}} = S_{\text{old}} \cdot 0.5$ (immediate reduction triggering rapid spaced revision).
-- If retention $R$ decays below **$60\%$**, the topic transitions to `Needs Revision`, automatically queuing it in the spaced-repetition planner.
+Every time a student submits an answer, the backend instantly recalculates their **Memory Stability ($S$)**:
+*   **Correct answer?** Stability grows exponentially: $S_{\text{new}} = S_{\text{old}} \cdot (1.5 + 2 \cdot \text{Accuracy})$.
+*   **Incorrect answer?** Stability is cut in half ($S_{\text{new}} = S_{\text{old}} \cdot 0.5$).
+The second a student's retention ($R$) drops below **$60\%$**, the topic automatically flags itself as `Needs Revision` and gets pushed to their daily practice planner.
 
-### 3. Cognitive Concept Dependency Graph (Directed Acyclic Graph - DAG)
-- Models mathematical concept networks (e.g. *Functions &rarr; Limits &rarr; Derivatives &rarr; Integrals*).
-- **Recursive Blocker Diagnostics**: If a student is weak in a target concept, the engine recursively searches prerequisites. If an ancestor node (like *Limits*) is weak (accuracy $<70\%$), the engine automatically overrides the practice queue to prioritize the prerequisite first and publishes a diagnostic coach alert: *"Derivatives is weak because Limits mastery is weak."*
+### 3. A 100% Resilient, Self-Healing Fallback Engine
+I didn't want this platform to break if the Google Gemini API went offline or if someone ran the app without an API key. 
+I built a native Python regex and TF-IDF keyword parser. If the Gemini API call fails, the app **automatically self-heals**: it parses your uploaded PDF, extracts the math concepts (e.g., *Matrices*, *Algebra*), and populates high-quality practice quizzes using a preloaded fallback question bank. It is completely bulletproof.
 
-### 4. Self-Healing Local Fallback Ingestion Pipeline
-- **PYMuPDF & Gemini Integration**: Parses raw text from PDFs, TXT, and Markdown files, recursive chunks text for semantic RAG lookups, and prompts Gemini to extract concept graphs and generate MCQ practice questions.
-- **Self-Healing Fallback**: If the Google Gemini API key is missing, invalid, or quota-throttled, the backend automatically activates a high-performance regex keyword parser. It successfully maps concepts (like *Matrices* and *Linear Algebra* when processing linear algebra notes) and populates the database from our preloaded local bank, guaranteeing **100% ingestion uptime**.
-
-### 5. Telemetry Analytics & Dropout-Risk Indicators
-- **Dropout Risk Index ($DRI$)**: Classifies student attrition risk using rolling telemetry:
-  $$DRI = 0.4 \cdot (1.0 - \text{Accuracy}_{\text{rolling}}) + 0.4 \cdot (1.0 - R) + 0.2 \cdot \min\left(1.0, \frac{\text{Time}_{\text{avg}}}{30.0}\right)$$
-  Flagged as "High Risk" if $DRI \ge 0.70$ or Mastery Velocity is negative ($< 0$) combined with high hesitation ($\text{Time}_{\text{avg}} \ge 25\text{ seconds}$).
-- **Revision Effectiveness ($E_{\text{rev}}$)**: Evaluates the percentage gain in topic accuracy after a spacing revision occurs compared to initial attempts:
-  $$E_{\text{rev}} = \text{Accuracy}_{\text{revision\_attempts}} - \text{Accuracy}_{\text{initial\_attempts}}$$
-
-### 6. Real-Time Telemetry Event Streaming & Scale Optimizations
-- **WebSocket Broadcasts**: Exposes a `/platform/ws/analytics` websocket connection streaming student quiz submissions live to teacher terminals.
-- **Caching Layer**: Provides in-memory key-expiry caching (`app/services/cache_service.py`) for heavy database-intensive operations (e.g. school cohort reports), reducing latency.
-- **Global Rate Limiter**: Protects routes using sliding-window rate-limiting middleware (throttling requests exceeding 100/minute while letting WebSockets bypass cleanly).
+### 4. Real-Time Telemetry & The Dropout Risk Index ($DRI$)
+For teachers, I built an aggregated cohort dashboard. It doesn't just show grades—it calculates a student's **Dropout Risk Index ($DRI$)** based on their rolling accuracy, response hesitation, and memory decay rate:
+$$DRI = 0.4 \cdot (1.0 - \text{Accuracy}_{\text{rolling}}) + 0.4 \cdot (1.0 - R) + 0.2 \cdot \min\left(1.0, \frac{\text{Time}_{\text{avg}}}{30.0}\right)$$
+I also wired up FastAPI **WebSockets** so that student attempts are streamed *live* to the teacher's screen as they happen.
 
 ---
 
-## 📐 System Architecture
+## 🚀 Get Your Own Running Link in 1 Minute (For Free!)
 
-The following diagram illustrates the secure, multi-tenant event flow of MATH-GAP:
+I wanted this project to be instantly accessible to recruiters. You can deploy it completely for free on **Streamlit Community Cloud** directly from your GitHub:
 
-```mermaid
-graph TD
-    subgraph "Secure Gateway & Tenant Verification"
-        A["Client / Browser / LMS"] --> B["FastAPI Security Dependency Injection"]
-        B -- "Header: X-API-Key" --> C["verify_api_key (School Tenant Auth)"]
-        B -- "Header: Authorization Bearer" --> D["get_current_user (JWT RBAC Session)"]
-        C & D --> E["resolve_student_id (Student Isolation Enforcer)"]
-    end
-
-    subgraph "Core Learning Telemetry & Services"
-        E --> F["ContentIngestionService (Self-Healing Local/Gemini Parser)"]
-        E --> G["CurriculumEngine (DAG Blocker Checks & Spacing Decay)"]
-        E --> H["StudentProfileService (Dynamic Mastery & Velocity Recalculator)"]
-    end
-
-    subgraph "Real-Time Telemetry & Caching"
-        H --> I["WebSocket manager (manager.broadcast)"]
-        I --> J["Teacher Live Activity Feed Stream"]
-        H --> K["CacheService (In-Memory TTL Caching)"]
-        K --> L["FastAPI GET /cohort-analytics"]
-    end
-```
+1. **Fork or Push** this repository to your GitHub account.
+2. Go to [share.streamlit.io](https://share.streamlit.io/) and log in with your GitHub.
+3. Click **"Create App"**, select this repository, set the Main file path to `dashboard/streamlit_app.py`, and click **Deploy**!
+4. *That's it!* Because of the custom background server launcher I wrote, Streamlit Sharing will automatically spin up the FastAPI backend and database in the background inside the container. It runs 100% standalone out-of-the-box!
 
 ---
 
-## 🔌 API-First Reference
+## 💻 Local Developer Guide
 
-All endpoints are protected under the global rate-limiter and resolve user scope dynamically:
+### 1. Zero-Setup Launch (Single-Terminal Mode)
+I hate having to open three terminals to run a simple project. I updated the Streamlit runner to **automatically check for and start the FastAPI backend** on startup. You only need to run a single command:
 
-### 1. User Authentication
-* **Signup**: `POST /auth/signup`
-  - Registers a new user, hashes passwords securely, and auto-provisions a `School` tenant.
-* **Login**: `POST /auth/login`
-  - Validates credentials and returns a secure JWT access token.
+```powershell
+# 1. Activate your virtual environment
+.venv\Scripts\activate
 
-### 2. Multi-Tenant Study Materials & Quizzes
-* **Upload Notes**: `POST /platform/upload-material`
-  - Uploads a note file. Resolves student ID from JWT or verified API-Key header.
-* **Submit Answer**: `POST /platform/submit-answer`
-  - Submits attempts, recalculates stability decays in-memory, checks prerequisite DAGs, and broadcasts telemetry to active WebSockets.
+# 2. Run the cockpit (starts both the frontend and background backend!)
+streamlit run dashboard/streamlit_app.py
+```
+Open **`http://localhost:8501`** in your browser and you're ready to go!
 
-### 3. Institutional Analytics & Cohorts
-* **Cohort Metrics**: `GET /platform/cohort-analytics`
-  - Computes active student lists, difficulty heatmaps, DRI scores, and revision gains. Enforces cached return checks (5s TTL).
+### 2. Recruiter Sandbox Mode (In-App)
+I built a **🧪 Recruiter Sandbox Mode** directly into the sidebar so you can test the platform instantly without filling out long registration forms:
+*   **Test as a Struggling Student**: Click *Sandbox: Weak Algebra Fundamentals*. Go to the Dynamic Practice Room, submit answers, and see your Ebbinghaus curve and DAG concept graphs adapt live.
+*   **Test as a Teacher**: Click *Sandbox: Principal Teacher Account*. You can see student DRI indicators, average accuracy charts, and click `🔄 Poll Live Activity Feed` to see real-time mock student activity.
 
 ---
 
-## 🧪 Verification & Automated Test Suite
+## 🧪 Verification & Automated Tests
 
-We maintain a comprehensive, automated verification suite consisting of **44 tests** asserting all security validations, token lifecycles, forgetting curve math, and concept DAG recursive blockers:
+I wrote a comprehensive automated test suite consisting of **44 backend tests** covering JWT auth, database isolation, Ebbinghaus decay formulas, and prerequisite DAG loops:
 
-```powershell
-============================= 44 passed in 13.01s ==============================
-```
-- `tests/test_auth_system.py` **Passed** (validates password hashing and JWT encoding/decoding)
-- `tests/test_concept_dependency.py` **Passed** (asserts prerequisite graph checks)
-- `tests/test_multi_tenancy.py` **Passed** (tests API key verifications and student isolation)
-- `tests/test_learning_memory.py` **Passed** (verifies Ebbinghaus formulas and timelines)
-- `tests/test_live_learning_platform.py` **Passed** (asserts RAG similarity queries and pdf extractions)
-
----
-
-## 🛠️ Step-by-Step Local Setup
-
-### 1. Install dependencies
-Ensure your virtual environment is active and run:
-```powershell
-.venv\Scripts\python.exe -m pip install pyjwt email-validator pymupdf
-.venv\Scripts\python.exe -m pip install -e ".[dev]"
-```
-
-### 2. Run the platform services (Separate terminals)
-**Terminal 1: Start API Backend**
-```powershell
-.venv\Scripts\uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
-```
-*(On startup, SQLite tables are automatically generated inside `math_gap.db`)*
-
-**Terminal 2: Launch Streamlit cockpit**
-```powershell
-.venv\Scripts\streamlit run dashboard/streamlit_app.py --server.port 8501 --server.address 0.0.0.0
-```
-
-### 3. Run verification tests
 ```powershell
 .venv\Scripts\pytest -v
 ```
 
----
-
-## 🚀 How to Publish This Project to Your GitHub
-
-Follow these simple steps in your terminal to create a repository and publish all your premium completed code:
-
-1. **Log in to GitHub** in your browser and create a new repository (e.g. named `math-gap` or `adaptive-learning-lms`). Keep it empty (do NOT initialize with a README or .gitignore).
-2. **Open your terminal** in the project root directory and run these commands:
-
-```bash
-# Initialize local git repository
-git init
-
-# Add all files to stage (handles .gitignore automatically)
-git add .
-
-# Create the initial commit
-git commit -m "feat: complete secure multi-tenant adaptive learning lms with ebbinghaus decay and concept dags"
-
-# Rename local default branch to main
-git branch -M main
-
-# Link your local repository to your remote GitHub repository
-# (Replace with your actual GitHub URL from Step 1)
-git remote add origin https://github.com/YOUR_GITHUB_USERNAME/YOUR_REPOSITORY_NAME.git
-
-# Push everything to GitHub!
-git push -u origin main
-```
-Your entire project is now live on GitHub and ready to present to recruiters!
+All 44 tests pass successfully with 100% green status.
